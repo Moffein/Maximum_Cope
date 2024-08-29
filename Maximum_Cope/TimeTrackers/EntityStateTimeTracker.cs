@@ -25,9 +25,73 @@ namespace Maximum_Cope.TimeTrackers
             On.EntityStates.EntityState.OnEnter += EntityState_OnEnter;
             On.EntityStates.EntityState.OnExit += EntityState_OnExit;
 
-            IL.EntityStates.BaseCharacterMain.UpdateAnimationParameters += ConvertToDeltaTime;
+            IL.EntityStates.BaseCharacterMain.UpdateAnimationParameters += BaseCharacterMain_UpdateAnimationParameters;
             IL.EntityStates.GoldGat.GoldGatFire.Update += ConvertToDeltaTime;
             IL.EntityStates.GoldGat.GoldGatIdle.Update += ConvertToDeltaTime;
+        }
+
+        private static void BaseCharacterMain_UpdateAnimationParameters(ILContext il)
+        {
+            bool error = true;
+            ILCursor c = new ILCursor(il);
+            if (c.TryGotoNext(MoveType.After, x => x.MatchCall(typeof(EntityState), "GetDeltaTime")))
+            {
+                c.Emit(OpCodes.Ldarg_0);
+                c.EmitDelegate<Func<float, EntityState, float>>((deltaTime, self) => {
+                    if (lastUpdateDict.TryGetValue(self, out float lastUpdateTime))
+                    {
+                        float newDt = Time.time - lastUpdateTime;
+                        if (newDt > 0) deltaTime = newDt;
+                    }
+                    return deltaTime;
+                });
+
+                if (c.TryGotoNext(MoveType.After, x => x.MatchCall(typeof(UnityEngine.Time), "get_deltaTime")))
+                {
+                    c.Emit(OpCodes.Ldarg_0);
+                    c.EmitDelegate<Func<float, EntityState, float>>((deltaTime, self) => {
+                        if (lastUpdateDict.TryGetValue(self, out float lastUpdateTime))
+                        {
+                            float newDt = Time.time - lastUpdateTime;
+                            if (newDt > 0) deltaTime = newDt;
+                        }
+                        return deltaTime;
+                    });
+
+                    if (c.TryGotoNext(MoveType.After, x => x.MatchCall(typeof(UnityEngine.Time), "get_deltaTime")))
+                    {
+                        c.Emit(OpCodes.Ldarg_0);
+                        c.EmitDelegate<Func<float, EntityState, float>>((deltaTime, self) => {
+                            if (lastUpdateDict.TryGetValue(self, out float lastUpdateTime))
+                            {
+                                float newDt = Time.time - lastUpdateTime;
+                                if (newDt > 0) deltaTime = newDt;
+                            }
+                            return deltaTime;
+                        });
+
+                        if (c.TryGotoNext(MoveType.After, x => x.MatchCall(typeof(UnityEngine.Time), "get_deltaTime")))
+                        {
+                            c.Emit(OpCodes.Ldarg_0);
+                            c.EmitDelegate<Func<float, EntityState, float>>((deltaTime, self) => {
+                                if (lastUpdateDict.TryGetValue(self, out float lastUpdateTime))
+                                {
+                                    float newDt = Time.time - lastUpdateTime;
+                                    if (newDt > 0) deltaTime = newDt;
+                                }
+                                return deltaTime;
+                            });
+
+                            error = false;
+                        }
+                    }
+                }
+            }
+
+            if (error)
+            {
+                Debug.LogError("Maximum Cope: Failed to IL Hook BaseCharacterMain_UpdateAnimationParameters");
+            }
         }
 
         private static void ConvertToDeltaTime(MonoMod.Cil.ILContext il)
@@ -39,7 +103,8 @@ namespace Maximum_Cope.TimeTrackers
                 c.EmitDelegate<Func<float, EntityState, float>> ((deltaTime, self) => {
                     if (lastUpdateDict.TryGetValue(self, out float lastUpdateTime))
                     {
-                        deltaTime = Time.time - lastUpdateTime;
+                        float newDt = Time.time - lastUpdateTime;
+                        if (newDt > 0) deltaTime = newDt;
                     }
                     return deltaTime;
                 });
