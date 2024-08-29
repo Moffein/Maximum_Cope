@@ -1,4 +1,5 @@
 ﻿using BepInEx;
+using Maximum_Cope.TimeTrackers;
 using System;
 
 namespace R2API.Utils
@@ -16,7 +17,12 @@ namespace Maximum_Cope
     {
         private void Awake()
         {
+            //Lots of duplicated code, should refactor later.
             EntityStateTimeTracker.Init();
+            BaseAITimeTracker.Init();
+            HealthComponentTimeTracker.Init();
+            GenericSkillTimeTracker.Init();
+            EntityStateMachineTimeTracker.Init();
         }
     }
 }
