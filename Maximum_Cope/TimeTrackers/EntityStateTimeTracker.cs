@@ -18,7 +18,7 @@ namespace Maximum_Cope.TimeTrackers
 
         internal static void Init()
         {
-            //On.EntityStates.EntityState.GetDeltaTime += EntityState_GetDeltaTime;
+            On.EntityStates.EntityState.GetDeltaTime += EntityState_GetDeltaTime;
             On.EntityStates.EntityState.FixedUpdate += EntityState_FixedUpdate;
             On.EntityStates.EntityState.Update += EntityState_Update;
             RoR2.Stage.onStageStartGlobal += ClearNullEntries;
